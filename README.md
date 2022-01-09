@@ -13,7 +13,7 @@ Relevant reading:
 
 ## Installation
 
-Because the repo doesn't exist yet locally, you'll have to get and run the appropriate script from the repository, and run it manually.  Download [`bin/dotfiles-init.sh`](https://raw.githubusercontent.com/crsmithdev/dotfiles/main/bin/dotfiles-init.sh) if creating a dotfiles repo for the first time, or [`bin/dotfiles-restore.sh`](https://raw.githubusercontent.com/crsmithdev/dotfiles/main/bin/dotfiles-restore.sh) if restoring dotfiles to a new environment.
+Because the repository doesn't exist yet locally, you'll have to get and run the appropriate script from Github and run it manually.  Download [`bin/dotfiles-init.sh`](https://raw.githubusercontent.com/crsmithdev/dotfiles/main/bin/dotfiles-init.sh) if creating a dotfiles repo for the first time, or [`bin/dotfiles-restore.sh`](https://raw.githubusercontent.com/crsmithdev/dotfiles/main/bin/dotfiles-restore.sh) if restoring dotfiles to a new environment.
 
 The quick, one-line way to do this, by example:
 
@@ -37,7 +37,7 @@ In this case, delete or move the existing files, follow the instructions and run
 
 [TODO expand]
 
-Adding a file is just like using git, with a different name, and without noise from the majority of home directory files which are probably not going to be tracked:
+The whole point of this is to make managing dotfiles just like using git, with the repo nature of it hidden and the noise from the majority of likely-untracked files gone.  For example, with a new file to track:
 
 ```
 dotfiles add <path/to/dotfile>
