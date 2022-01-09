@@ -1,0 +1,11 @@
+[user]
+	email = crsmithdev@gmail.com
+	name = Chris Smith
+
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+	ui = true
+	pager = true
