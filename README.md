@@ -32,3 +32,15 @@ error: The following untracked working tree files would be overwritten by checko
 ```
 
 In this case, delete or move the existing files, follow the instructions and run `dotfiles checkout` to finish the checkout, and then manually merge any committed files with their local versions, if needed.
+
+## Usage
+
+[TODO expand]
+
+Adding a file is just like using git, with a different name, and without noise from the majority of home directory files which are probably not going to be tracked:
+
+```
+dotfiles add <path/to/dotfile>
+dotfiles commit -m "added new dotfile"
+dotfiles push origin main
+```
