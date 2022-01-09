@@ -1,4 +1,4 @@
-# dotfiles - personal dotfiles stores in git
+# dotfiles - personal dotfiles
 
 ## Background
 
