@@ -1,5 +1,6 @@
 ---
 description: Ultra-fast project status (local operations only, no CI/OpenSpec)
+model: haiku
 ---
 
 Get instant project status using cached git operations (no external API calls).
