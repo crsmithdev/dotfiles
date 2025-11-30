@@ -1,0 +1,12 @@
+[data]
+{{- if eq .chezmoi.os "linux" }}
+{{-   if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+    os = "wsl"
+{{-   else }}
+    os = "linux"
+{{-   end }}
+{{- else if eq .chezmoi.os "windows" }}
+    os = "windows"
+{{- end }}
+    email = "crsmithdev@gmail.com"
+    name = "Chris Smith"

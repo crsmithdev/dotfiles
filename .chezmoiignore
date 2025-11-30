@@ -1,0 +1,11 @@
+# Ignore WSL-specific files on Windows
+{{- if eq .chezmoi.os "windows" }}
+.bashrc
+.config/gh/
+{{- end }}
+
+# Ignore Windows-specific files on Linux/WSL
+{{- if ne .chezmoi.os "windows" }}
+AppData/
+Documents/WindowsPowerShell/
+{{- end }}
