@@ -1,0 +1,46 @@
+@default:
+    just --list
+
+# Install dependencies
+@install:
+    uv sync
+
+# Run all quality checks
+@check:
+    echo "Linting..."
+    uv run ruff check --fix .
+    echo "Formatting..."
+    uv run ruff format .
+    echo "Type checking..."
+    uv run mypy src/
+    echo "Testing..."
+    uv run pytest
+    echo "✓ All checks passed"
+
+# Run tests with coverage
+@test-cov:
+    uv run pytest --cov=src --cov-report=html --cov-report=term-missing
+
+# Run tests
+@test:
+    uv run pytest
+
+# Format code
+@fmt:
+    uv run ruff format .
+
+# Lint code
+@lint:
+    uv run ruff check --fix .
+
+# Type check
+@types:
+    uv run mypy --strict src/
+
+# Clean artifacts
+@clean:
+    rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov/
+    find . -type d -name __pycache__ -exec rm -rf {} +
+    find . -type f -name "*.pyc" -delete
+    find . -type f -name "*.pyo" -delete
+    echo "✓ Cleaned artifacts"
