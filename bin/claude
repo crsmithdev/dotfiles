@@ -1,0 +1,7 @@
+#!/bin/bash
+# Wrapper for claude that supports /new restart command
+while true; do
+    claude "$@"
+    [[ -f /tmp/.claude-restart ]] || break
+    rm -f /tmp/.claude-restart
+done
