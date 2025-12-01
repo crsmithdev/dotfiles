@@ -1,0 +1,1 @@
+- remember do not shadow global slash commands
