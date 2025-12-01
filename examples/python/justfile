@@ -1,0 +1,34 @@
+set dotenv-load := true
+
+# Run all quality checks
+check: fmt lint types test
+    @echo "✓ All checks passed"
+
+# Format code with ruff
+fmt:
+    uv run ruff format .
+
+# Lint code with ruff
+lint:
+    uv run ruff check . --fix
+
+# Type check with mypy
+types:
+    uv run mypy src/ tests/
+
+# Run tests with pytest
+test:
+    uv run pytest tests/ -v --cov=src --cov-report=term-missing
+
+# Install dependencies
+install:
+    uv sync
+
+# Clean up caches and build artifacts
+clean:
+    find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name .mypy_cache -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name .ruff_cache -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
+    @echo "✓ Cleaned up caches"
