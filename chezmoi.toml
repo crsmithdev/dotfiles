@@ -1,0 +1,40 @@
+# chezmoi configuration
+# See: https://www.chezmoi.io/
+
+[data]
+  # Can be referenced in templates as {{ .email }}, {{ .username }}, etc.
+  username = "crsmi"
+  email = "crsmithdev@gmail.com"
+  hostname = "ubuntu-dev"
+
+# Where to find source files
+sourceDir = "~/.local/share/chezmoi"
+
+# Deploy encrypted files (e.g., .ssh/config with secrets)
+# encryption = "gpg"
+
+[interpreters.sh]
+command = "bash"
+args = ["-euc"]
+
+[interpreters.ps1]
+command = "powershell"
+args = ["-NoProfile", "-Command"]
+
+# Ignore patterns when applying
+ignore = [
+  "README.md",
+  "LICENSE",
+  ".git",
+  ".gitignore",
+  "chezmoi.toml",
+]
+
+# Run scripts before/after apply
+# [hooks.read-source]
+# command = "bash"
+# args = ["bin/validate.sh"]
+
+# [hooks.apply-post]
+# command = "bash"
+# args = ["bin/post-apply.sh"]

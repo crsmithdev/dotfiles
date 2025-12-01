@@ -1,0 +1,28 @@
+# Auto convert line endings to LF for all text files
+* text=auto
+
+# Shell scripts and Python
+*.sh eol=lf
+*.py eol=lf
+*.bash eol=lf
+*.zsh eol=lf
+
+# Config files
+*.toml eol=lf
+*.yaml eol=lf
+*.yml eol=lf
+*.json eol=lf
+*.conf eol=lf
+*.md eol=lf
+
+# Windows-specific files (keep CRLF)
+*.ps1 eol=crlf
+*.cmd eol=crlf
+*.bat eol=crlf
+
+# Binary files
+*.jpg binary
+*.png binary
+*.gif binary
+*.zip binary
+*.tar binary
