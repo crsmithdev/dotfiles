@@ -27143,3 +27143,82 @@
 2025-12-02T01:12:58.157Z [DEBUG] Stream started - received first chunk
 2025-12-02T01:12:58.161Z [DEBUG] Stream started - received first chunk
 2025-12-02T01:12:58.246Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:12:58.799Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-02T01:12:58.799Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:12:58.799Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:12:58.830Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-02T01:12:58.830Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-02T01:12:58.836Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-02T01:12:58.836Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-02T01:12:59.774Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:01.105Z [ERROR] Error: Error: EISDIR: illegal operation on a directory, read
+    at readFileSync (unknown)
+    at readFileSync (/$bunfs/root/claude:12:370)
+    at gsI (/$bunfs/root/claude:4257:17094)
+    at call (/$bunfs/root/claude:1456:912)
+    at call (/$bunfs/root/claude:1452:5768)
+    at <anonymous> (/$bunfs/root/claude:1648:1512)
+    at processTicksAndRejections (native:7:39)
+2025-12-02T01:13:03.453Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:08.049Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-02T01:13:08.053Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-02T01:13:08.053Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:13:08.053Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:13:08.660Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:08.805Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:09.726Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-02T01:13:09.726Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:13:09.726Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:13:09.749Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-02T01:13:09.749Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-02T01:13:09.755Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-02T01:13:09.755Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-02T01:13:10.908Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:11.759Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:12.298Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-02T01:13:12.303Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-02T01:13:12.303Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:13:12.303Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:13:12.910Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:15.042Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-02T01:13:15.042Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:13:15.042Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:13:15.065Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-02T01:13:15.065Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-02T01:13:15.071Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-02T01:13:15.071Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-02T01:13:15.631Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:18.750Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:13:20.013Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2025-12-02T01:13:20.013Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:13:20.013Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-02T01:14:21.675Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-02T01:14:21.675Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-02T01:14:21.680Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-02T01:14:21.680Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-02T01:14:21.694Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2025-12-02T01:14:21.694Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:14:21.694Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-02T01:14:21.694Z [DEBUG] FileHistory: Making snapshot for message 98d2712c-5f8b-432c-a13a-b2122a7a0cda
+2025-12-02T01:14:21.695Z [DEBUG] FileHistory: Missing tracked file: /home/crsmi/.claude/plans/soft-honking-church.md
+2025-12-02T01:14:21.695Z [DEBUG] FileHistory: Added snapshot for 98d2712c-5f8b-432c-a13a-b2122a7a0cda, tracking 21 files
+2025-12-02T01:14:22.321Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:14:24.590Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:14:26.002Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-02T01:14:26.007Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-02T01:14:26.007Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:14:26.007Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:14:26.708Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:14:26.873Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-02T01:14:26.873Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:14:26.873Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-02T01:14:26.895Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-02T01:14:26.895Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-02T01:14:26.903Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-02T01:14:26.903Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-02T01:14:27.757Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:14:29.501Z [DEBUG] Stream started - received first chunk
+2025-12-02T01:14:30.426Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-02T01:14:30.430Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-02T01:14:30.430Z [DEBUG] Found 0 hook matchers in settings
+2025-12-02T01:14:30.430Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
