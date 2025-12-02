@@ -1,5 +1,6 @@
 ---
 description: Comprehensive codebase audit with parallel agents (read-only)
+allowed-tools: EnterPlanMode, Task
 ---
 
 Run a comprehensive codebase audit using parallel specialized agents. This spawns multiple agents to analyze architecture, code quality, documentation, and user experience simultaneously.

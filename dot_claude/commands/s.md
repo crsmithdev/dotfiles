@@ -1,6 +1,7 @@
 ---
 description: Switch to Sonnet or run with Sonnet without switching
 model: sonnet
+allowed-tools: Bash
 ---
 
 If there are arguments below, execute that request. Otherwise run `/model sonnet` to switch.

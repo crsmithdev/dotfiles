@@ -1,6 +1,7 @@
 ---
 description: Scaffold a new OpenSpec change and validate strictly.
 model: sonnet
+allowed-tools: Read, Write, Bash
 ---
 
 First, check if `openspec/` directory exists. If not, respond: "This project doesn't have OpenSpec set up. Create an `openspec/` directory with `project.md` first, or use a different workflow."

@@ -1,6 +1,7 @@
 ---
 description: Create an OpenSpec proposal for design ideas and requirements (without tasks/specs)
 model: sonnet
+allowed-tools: Read, Write
 ---
 
 First, check if `openspec/` directory exists. If not, respond: "This project doesn't have OpenSpec set up."

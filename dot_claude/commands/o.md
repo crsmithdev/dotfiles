@@ -1,6 +1,7 @@
 ---
 description: Switch to Opus or run with Opus without switching
 model: opus
+allowed-tools: Bash
 ---
 
 If there are arguments below, execute that request. Otherwise run `/model opus` to switch.

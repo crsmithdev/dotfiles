@@ -1,6 +1,7 @@
 ---
 description: List OpenSpec proposals and their status
 model: haiku
+allowed-tools: Bash
 ---
 
 First, check if `openspec/` directory exists. If not, respond: "This project doesn't have OpenSpec set up."

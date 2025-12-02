@@ -1,6 +1,7 @@
 ---
 description: Show project and session state
 model: haiku
+allowed-tools: Bash
 ---
 
 Show session and project state. Adapt output based on what's available.

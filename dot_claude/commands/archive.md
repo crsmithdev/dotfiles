@@ -1,6 +1,7 @@
 ---
 description: Archive a deployed OpenSpec change and update specs.
 model: sonnet
+allowed-tools: Bash
 ---
 
 First, check if `openspec/` directory exists. If not, respond: "This project doesn't have OpenSpec set up."

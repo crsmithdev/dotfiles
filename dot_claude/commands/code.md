@@ -1,10 +1,11 @@
 ---
 description: Open file or folder in VS Code
+allowed-tools: Bash
 ---
 
-Open the specified file, folder, or path in VS Code. If no path given, open current directory.
-
-Run: `code $ARGUMENTS` (or `code .` if no args)
+```bash
+~/.claude/scripts/code.sh $ARGUMENTS
+```
 
 <!--
 TEST CASES:

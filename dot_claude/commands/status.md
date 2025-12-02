@@ -1,16 +1,14 @@
 ---
 description: Show project and session state with draft proposals
+allowed-tools: Bash
 ---
 
-# Show project state including draft proposals
-
-Show the current project state and session status, including both completed proposals and draft proposals (those missing implementation details).
-
 ```bash
-echo "=== Project Status ===" && \
-git status --short && echo && \
-echo "=== Recent Commits ===" && \
-git log --oneline -5 && echo && \
-echo "=== OpenSpec Proposals ===" && \
-openspec list
+~/.claude/scripts/status.sh
 ```
+
+<!--
+TEST CASES:
+- `/status` in git repo with openspec/ → shows git status, commits, and proposals
+- `/status` in git repo without openspec/ → shows git status, commits, openspec errors gracefully
+-->

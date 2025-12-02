@@ -1,6 +1,7 @@
 ---
 description: Switch to Haiku or run with Haiku without switching
 model: haiku
+allowed-tools: Bash
 ---
 
 If there are arguments below, execute that request. Otherwise run `/model haiku` to switch.

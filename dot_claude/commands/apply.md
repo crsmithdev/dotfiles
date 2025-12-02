@@ -1,6 +1,7 @@
 ---
 description: Implement an approved OpenSpec change and keep tasks in sync.
 model: sonnet
+allowed-tools: Read, Edit, Write, Bash
 ---
 
 First, check if `openspec/` directory exists. If not, respond: "This project doesn't have OpenSpec set up."

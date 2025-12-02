@@ -1,6 +1,7 @@
 ---
 description: Run multiple commands in single aggregated execution
 model: haiku
+allowed-tools: Bash
 ---
 
 Aggregate independent commands into a single execution to reduce tool call roundtrips.

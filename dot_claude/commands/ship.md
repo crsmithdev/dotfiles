@@ -1,6 +1,7 @@
 ---
 description: Commit and push changes to GitHub
 model: sonnet
+allowed-tools: Bash
 ---
 
 **Optimized workflow:**
@@ -41,3 +42,10 @@ model: sonnet
 - Avoid redundant status operations
 - Push immediately after commit (single git operation)
 - Use structured output if integrating with other tools
+
+<!--
+TEST CASES:
+- `/ship` with staged changes → commits and pushes, reports hash
+- `/ship` with no changes → reports "nothing to commit"
+- `/ship` with unstaged changes → stages relevant files, commits, pushes
+-->
