@@ -1,0 +1,25 @@
+{{- if eq .chezmoi.os "windows" }}
+$Source = "{{ .chezmoi.sourceDir }}\dot_claude"
+$Target = "$env:USERPROFILE\.claude"
+
+# Remove existing if present
+if (Test-Path $Target) {
+    Remove-Item $Target -Recurse -Force
+}
+
+# Try symlink (works with Developer Mode)
+try {
+    New-Item -ItemType SymbolicLink -Path $Target -Target $Source -ErrorAction Stop
+    exit 0
+} catch {}
+
+# Fall back to junction (local paths only, no admin needed)
+try {
+    cmd /c mklink /J "$Target" "$Source"
+    exit 0
+} catch {}
+
+# Final fallback: copy (always works but needs manual sync)
+Copy-Item -Path $Source -Destination $Target -Recurse
+Write-Warning ".claude copied (not linked). Enable Developer Mode for symlink support."
+{{- end }}

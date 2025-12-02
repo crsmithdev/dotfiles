@@ -1,0 +1,48 @@
+# [STRUCT] Structure Output and Annotation Format Redesign
+
+## Why
+
+Current structure output conflates machine detection with human annotation, creating noise and confusion:
+
+1. **Output pollution**: Consecutive "other" sections and many redundant drops clutter the output
+2. **Label premature exposure**: Low-confidence labels (breakdown, buildup) included before accuracy validated
+3. **Polymorphic format**: `[bar, label]` vs `[start, end, label]` mixing creates ambiguity
+4. **No confidence visibility**: Can't tell which detections are reliable during manual review
+5. **Annotation friction**: Dense YAML format is tedious to edit and error-prone
+6. **Format conflation**: Different use cases (detect → review vs ground truth → train) need different formats
+
+This makes iterative correction workflows difficult: Can't easily detect → annotate → diff → evaluate.
+
+## What Changes
+
+- **Output Format v2**: Separate high-confidence and experimental detections with confidence scores
+  - `detected_structure.sections`: High-confidence spans with confidence >= 0.7
+  - `detected_structure.events`: High-confidence drops/events with confidence >= 0.7
+  - `detected_structure_experimental`: Medium-confidence detections (0.5–0.7) for research
+
+- **Annotation Format v2**: Human-friendly ground truth format (canonical: list-based, supports repetition)
+  ```yaml
+  structure:
+    - label: intro
+      bars: 1-24
+    - label: verse
+      bars: 25-80
+    - label: verse        # Repeated labels are natural
+      bars: 105-126
+  drops:
+    - 24
+    - 105
+  ```
+
+- **Conversion utilities**: Tools to convert detected → annotation template and diff detected vs annotated
+- **Label maturity phases**: Progressive disclosure—Phase 1 (drops only) → Phase 2 (add sections) → Phase 3 (full structure)
+- **Consecutive section merging**: Adjacent sections with identical labels merged automatically for cleaner output
+
+## Impact
+
+- Affected specs: `output_formats`, `annotation_schema` (new specs)
+- Affected code:
+  - `src/edm/analysis/structure.py` (output merging, confidence filtering)
+  - `src/cli/commands/analyze.py` (structured output, experimental sections)
+  - New utility module: `src/edm/formats/converters.py` (detect ↔ annotation conversion)
+  - Optional CLI commands: `edm convert`, `edm diff` (for workflow support)

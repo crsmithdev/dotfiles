@@ -1,0 +1,21 @@
+#!/bin/bash
+{{- if ne .chezmoi.os "windows" }}
+# Create ~/.claude as symlink to dotfiles repo
+SOURCE="{{ .chezmoi.sourceDir }}/dot_claude"
+TARGET="{{ .chezmoi.homeDir }}/.claude"
+
+if [ -L "$TARGET" ]; then
+    # Already a symlink, check if correct
+    if [ "$(readlink "$TARGET")" = "$SOURCE" ]; then
+        exit 0
+    fi
+    rm "$TARGET"
+elif [ -d "$TARGET" ]; then
+    # Backup existing directory
+    mv "$TARGET" "$TARGET.backup.$(date +%s)"
+fi
+
+ln -s "$SOURCE" "$TARGET"
+{{- else }}
+exit 0
+{{- end }}

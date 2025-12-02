@@ -1,0 +1,273 @@
+# Annotation Format Specification
+
+## File Format
+
+YAML format (`track_annotated.yaml`)
+
+## Required Fields
+
+### Top-Level Metadata
+
+```yaml
+file: string                    # Path to audio file being annotated
+bpm: float                      # BPM (required for bar-based annotations)
+```
+
+### Annotation Data
+
+Two formats supported; Option A is canonical and recommended.
+
+## Option A: List-Based (Canonical)
+
+Recommended format that naturally handles repeated labels.
+
+```yaml
+structure:
+  - label: string              # Section label
+    bars: string              # Bar range as "start-end" (1-indexed, inclusive)
+
+drops: list[int]              # Bar numbers where drops occur (1-indexed)
+```
+
+### Constraints
+
+- `label`: One of the functional labels (intro, verse, breakdown, buildup, outro, chorus, bridge, etc.)
+- `bars`: Format `"start-end"` where start and end are integers, start >= 1, end >= start
+- Sections must be contiguous and non-overlapping
+- Sections should be ordered chronologically
+- Same label can appear multiple times
+- `drops`: List of unique bar numbers in ascending order
+
+### Example
+
+```yaml
+file: track.flac
+bpm: 128.0
+
+structure:
+  - label: intro
+    bars: 1-24
+
+  - label: verse
+    bars: 25-80
+
+  - label: breakdown
+    bars: 81-92
+
+  - label: buildup
+    bars: 93-104
+
+  - label: verse
+    bars: 105-126
+
+  - label: breakdown
+    bars: 127-140
+
+  - label: outro
+    bars: 141-156
+
+drops:
+  - 24
+  - 105
+```
+
+## Option B: Dict-Based (Simplified)
+
+Simpler format for tracks where each label appears only once.
+
+```yaml
+structure:
+  [label]: string              # Bar range as "start-end"
+
+drops: list[int]              # Bar numbers where drops occur
+```
+
+### Constraints
+
+- Each label key appears at most once
+- Same rules for `bars` format and `drops` as Option A
+- If a label needs to repeat, use Option A instead
+
+### Example
+
+```yaml
+file: track.flac
+bpm: 128.0
+
+structure:
+  intro: 1-24
+  verse: 25-80
+  breakdown: 81-92
+  buildup: 93-104
+  outro: 105-110
+
+drops:
+  - 24
+  - 105
+```
+
+## Drops: Explicit vs Implicit
+
+### Explicit Drops (Current)
+
+Drops specified as a list of bar numbers:
+
+```yaml
+drops:
+  - 24
+  - 105
+```
+
+### Implicit Drops (Future)
+
+Drops can be inferred from section transitions (future feature):
+
+```yaml
+structure:
+  - label: buildup
+    bars: 1-24
+  # Drop IMPLIED at transition to verse (next section start)
+  - label: verse
+    bars: 25-80
+```
+
+Parser can infer drops at these transitions:
+- buildup → verse
+- buildup → chorus
+- buildup → breakdown
+- etc.
+
+Currently, explicit drops list is required. Implicit drops support will be added.
+
+## Label Definitions
+
+Same as output format spec:
+- **intro**: Opening section (0-20% of track)
+- **verse**: Main section with variation
+- **chorus**: Recurring hook
+- **bridge**: Transitional section
+- **breakdown**: Stripped/simplified section
+- **buildup**: Rising energy leading to climax
+- **drop**: Peak energy moment
+- **silence**: Quiet/minimal section
+- **outro**: Closing section
+
+## Conversion Rules
+
+### Option A ↔ Option B
+
+**A → B (valid only if no repeated labels):**
+```python
+structure_dict = {}
+for item in structure_list:
+    label = item["label"]
+    if label in structure_dict:
+        raise ValueError(f"Repeated label '{label}': use Option A format")
+    structure_dict[label] = item["bars"]
+```
+
+**B → A:**
+```python
+structure_list = []
+for label, bars_str in structure_dict.items():
+    structure_list.append({"label": label, "bars": bars_str})
+```
+
+## Validation Rules
+
+1. All bars from 1 to max bar number must be covered by sections (no gaps)
+2. Sections must not overlap
+3. Drops must be within track bounds (1 to max bar number)
+4. No negative bar numbers
+5. Range format must be "start-end" where both are positive integers
+6. Option B: Each label appears at most once
+
+## Coverage Requirement
+
+All bars from bar 1 to the final section's end must be assigned a label.
+
+**Valid:**
+```yaml
+structure:
+  - label: intro
+    bars: 1-24
+  - label: verse
+    bars: 25-80    # Contiguous: 24+1 = 25 ✓
+  - label: outro
+    bars: 81-100   # Contiguous: 80+1 = 81 ✓
+```
+
+**Invalid (gap):**
+```yaml
+structure:
+  - label: intro
+    bars: 1-24
+  - label: verse
+    bars: 26-80    # Gap: bar 25 not covered ✗
+```
+
+## Example: Complete Annotation
+
+```yaml
+file: /home/user/music/track.flac
+bpm: 128.0
+
+structure:
+  - label: intro
+    bars: 1-24
+
+  - label: verse
+    bars: 25-80
+
+  - label: breakdown
+    bars: 81-92
+
+  - label: buildup
+    bars: 93-104
+
+  - label: verse
+    bars: 105-126
+
+  - label: breakdown
+    bars: 127-140
+
+  - label: outro
+    bars: 141-156
+
+drops:
+  - 24
+  - 105
+```
+
+## Creating Annotations from Detected Output
+
+Use `edm convert` to generate annotation template:
+
+```bash
+$ edm convert track_detected_v2.yaml --to-annotation
+```
+
+Output:
+```yaml
+file: track.flac
+bpm: 128.0
+
+structure:
+  - label: intro
+    bars: 1-24
+
+  - label: verse
+    bars: 25-80
+
+  # ... (filled from detector output, confidence removed)
+
+drops:
+  - 24
+  - 105
+```
+
+Human then edits this file to correct labels and add missing structure.
+
+## Version History
+
+- **v1.0**: List-based (Option A) as canonical, dict-based (Option B) as convenience (this spec)

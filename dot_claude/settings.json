@@ -1,0 +1,61 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Mcp",
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "Task",
+      "TodoWrite",
+      "NotebookEdit",
+      "BashOutput",
+      "KillShell",
+      "AskUserQuestion",
+      "Skill",
+      "SlashCommand"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "model": "opus",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/black-box-startup.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/validate-commands.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "python-development@claude-code-workflows": true,
+    "unit-testing@claude-code-workflows": true,
+    "backend-development@claude-code-workflows": true,
+    "application-performance@claude-code-workflows": true,
+    "code-documentation@claude-code-workflows": true,
+    "comprehensive-review@claude-code-workflows": true,
+    "code-refactoring@claude-code-workflows": true,
+    "error-diagnostics@claude-code-workflows": true,
+    "cicd-automation@claude-code-workflows": true
+  },
+  "alwaysThinkingEnabled": true
+}

@@ -1,0 +1,160 @@
+# Implementation Tasks
+
+## Phase 1: Output Format v2 (High-confidence + Experimental)
+
+### Task 1.1: Update StructureResult dataclass
+- [ ] Modify `src/edm/analysis/structure.py:StructureResult`
+- [ ] Update sections to include confidence field
+- [ ] Add experimental_sections field
+- [ ] Update related Section dataclass with confidence field
+- [ ] Add EventResult dataclass for drop events
+- [ ] Update structure detector to output confidence scores
+
+### Task 1.2: Update detection logic to output confidence
+- [ ] Modify MSAF detector wrapper to preserve confidence
+- [ ] Modify energy detector to compute confidence scores
+- [ ] Implement confidence threshold filtering (default 0.7)
+- [ ] Separate high-confidence from experimental (0.5-0.7)
+
+### Task 1.3: Implement consecutive section merging
+- [ ] Create `src/edm/formats/processing.py:merge_consecutive_sections()`
+- [ ] Test merging identical adjacent labels
+- [ ] Test average confidence calculation
+- [ ] Integrate into output pipeline
+
+### Task 1.4: Update CLI output to new format
+- [ ] Modify `src/cli/commands/analyze.py` to output detected_structure v2
+- [ ] Add `--include-experimental` flag to show experimental detections
+- [ ] Update table output to show confidence column (optional)
+- [ ] Test with real tracks
+
+### Task 1.5: Add output validation
+- [ ] Implement validation rules from output_format.md spec
+- [ ] Check no gaps in section coverage
+- [ ] Check no overlapping sections
+- [ ] Validate confidence scores (0.0-1.0)
+- [ ] Add unit tests for validation
+
+## Phase 2: Annotation Format v2 (List-based canonical)
+
+### Task 2.1: Create annotation format parser
+- [ ] Create `src/edm/formats/annotation.py`
+- [ ] Implement AnnotationV2 dataclass (canonical list format)
+- [ ] Implement AnnotationV2Dict dataclass (simplified dict format)
+- [ ] Add parsers for both formats (YAML)
+- [ ] Add validation (coverage, no overlaps, valid labels)
+
+### Task 2.2: Create conversion utilities
+- [ ] Create `src/edm/formats/converters.py`
+- [ ] Implement `convert_detected_to_annotation()` function
+- [ ] Implement `convert_annotation_to_comparable()` function
+- [ ] Implement `convert_annotation_list_to_dict()` (only if no repeats)
+- [ ] Implement `convert_annotation_dict_to_list()`
+- [ ] Add comprehensive unit tests
+
+### Task 2.3: Implement comparison logic
+- [ ] Create `src/edm/formats/comparison.py`
+- [ ] Implement `compare_detected_vs_annotated()` function
+- [ ] Compute exact matches, missing detections, false positives
+- [ ] Handle boundary differences and label changes
+- [ ] Generate human-readable diff output
+- [ ] Add tests with real examples
+
+## Phase 3: CLI Commands
+
+### Task 3.1: Implement edm convert command
+- [ ] Add `convert` subcommand to CLI
+- [ ] Support `--to-annotation` (detector → annotation)
+- [ ] Support `--to-detected` (annotation → detector)
+- [ ] Support `--to-dict-format` (list → dict)
+- [ ] Support `--to-list-format` (dict → list)
+- [ ] Support `--include-experimental` flag
+- [ ] Add input validation and error messages
+- [ ] Add integration tests
+
+### Task 3.2: Implement edm diff command
+- [ ] Add `diff` subcommand to CLI
+- [ ] Support comparing any two YAML files
+- [ ] Generate formatted diff output (YAML or text)
+- [ ] Support `--quiet` flag for summary only
+- [ ] Support `--include-experimental` flag
+- [ ] Add color output for readability (optional)
+- [ ] Add integration tests
+
+### Task 3.3: Implement edm evaluate command
+- [ ] Add `evaluate` subcommand to CLI (if not exists)
+- [ ] Support structure evaluation with ground truth
+- [ ] Compute precision, recall, F-score
+- [ ] Generate evaluation report
+- [ ] Support per-label accuracy metrics
+- [ ] Add integration tests
+
+## Phase 4: Label Maturity Phases (Progressive Disclosure)
+
+### Task 4.1: Create label configuration system
+- [ ] Create `src/edm/analysis/label_config.py`
+- [ ] Define LABEL_MATURITY_PHASES dict
+- [ ] Implement phase selector based on accuracy thresholds
+- [ ] Support configuration file for custom phases
+
+### Task 4.2: Implement label filtering in output
+- [ ] Modify output pipeline to apply label filtering
+- [ ] Add `--label-phase` CLI flag (1, 2, 3)
+- [ ] Add `--labels` CLI flag for custom inclusion/exclusion
+- [ ] Document label phases in help text
+- [ ] Add tests verifying correct labels in output
+
+## Phase 5: Documentation and Testing
+
+### Task 5.1: Create user documentation
+- [ ] Write format guide with examples
+- [ ] Write workflow tutorial
+- [ ] Create comparison guide
+- [ ] Add troubleshooting section
+- [ ] Update main README
+
+### Task 5.2: Integration testing
+- [ ] Test full workflow: detect → convert → edit → diff → evaluate
+- [ ] Test with 5+ real tracks
+- [ ] Test edge cases (repeated labels, gaps, missing drops)
+- [ ] Test error handling and validation
+- [ ] Generate example outputs for documentation
+
+### Task 5.3: Backward compatibility
+- [ ] Ensure existing `track_detected.yaml` still works (if Option A chosen)
+- [ ] Add migration guide if switching formats
+- [ ] Support reading old format in convert tool
+- [ ] Add deprecation warnings if needed
+
+## Implementation Notes
+
+### Precedence
+1. **Phase 1** must complete before Phase 2 (output must be correct)
+2. **Phase 2** must complete before Phase 3 (formats must exist)
+3. **Phase 3** can run in parallel with Phase 4
+4. **Phase 5** occurs throughout, not just at the end
+
+### Dependencies
+- Phase 1.2 depends on: structure detector implementation
+- Phase 2.1 depends on: Phase 1 complete
+- Phase 2.2 depends on: Phase 2.1 complete
+- Phase 2.3 depends on: Phase 2.2 complete
+- Phase 3.1 depends on: Phase 2.2 complete
+- Phase 3.2 depends on: Phase 2.3 complete
+
+### Testing Strategy
+- Unit tests for each module (merging, conversion, comparison)
+- Integration tests for full workflows
+- Property-based tests for validation (e.g., merging preserves coverage)
+- Real track examples for end-to-end validation
+
+### Configuration
+- Add to `pyproject.toml` or `.edm/config.yaml`:
+  ```yaml
+  structure_output:
+    format: v2  # or "v1" for backward compat
+    confidence_threshold: 0.7
+    include_experimental: false
+    label_phase: 1
+    merge_consecutive: true
+  ```

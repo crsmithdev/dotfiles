@@ -1,0 +1,588 @@
+# [STRUCT] Structure Output and Annotation Format Redesign
+
+## Vision Statement
+
+Design structure output and annotation formats optimized for their specific purposes:
+- **Output format**: Machine detection results with confidence for human review
+- **Annotation format**: Sparse, authoritative ground truth for easy editing and comparison
+
+Currently conflating both into a single format creates noise, confusion, and difficult workflows.
+
+## Problem Statement
+
+### Current Issues
+
+1. **Output Pollution**: "other" sections and consecutive identical labels create noise
+```yaml
+- [1, 16, other]      # low signal
+- [16, 24, other]     # duplicate
+- [24, drop]          # signal
+- [32, drop]          # possibly false positive
+```
+
+2. **Label Premature Exposure**: Including breakdown/buildup before they're accurate
+```yaml
+- [81, 92, breakdown]    # confidence 0.6, not production-ready
+```
+
+3. **Polymorphic Format Confusion**: `[bar, label]` vs `[start, end, label]` mixing
+```yaml
+- [1, 1, intro]          # span with zero duration (bug!)
+- [24, drop]             # event or span?
+- [24, 32, other]        # span
+```
+
+4. **Drop Semantics Ambiguity**: Events vs transitions vs implied moments
+```yaml
+- [24, drop]             # just a moment marker
+# but musically: buildup (1-24) → drop → verse (25-80)
+```
+
+5. **Annotation Friction**: Editing polymorphic YAML directly is tedious
+```yaml
+# Hard to edit, easy to make mistakes
+- [1, 24, intro]
+- [25, 80, other]         # what's this really?
+- [81, 92, breakdown]
+```
+
+6. **No Confidence Visibility**: Can't tell which detections are reliable during review
+```yaml
+- [88, drop]             # confidence 0.6 or 0.9? Unknown!
+```
+
+7. **No Comparison Workflow**: Difficult to diff detected vs annotated structure
+```bash
+# How do we know what changed?
+$ diff detected.yaml annotated.yaml
+# Output is hard to interpret
+```
+
+## Goals
+
+1. **Clean Output**: Show only high-confidence detections, no noise
+2. **Easy Annotations**: Human-friendly format for ground truth
+3. **Clear Confidence**: See what the detector is uncertain about
+4. **Efficient Workflow**: Convert detected → annotate → diff → evaluate
+5. **Future-Proof**: Support progressive addition of labels (drops → sections → full structure)
+6. **Research-Friendly**: Keep low-confidence signals for investigation
+
+## Solution Overview
+
+### Key Design Principles
+
+**Principle 1: Separate Concerns**
+- Output format optimized for machine→human review
+- Annotation format optimized for human→machine ground truth
+- Different use cases, different optimal formats
+
+**Principle 2: Confidence-Based Filtering**
+- Internally detect all labels with confidence scores
+- Output only filters by threshold (default: 0.7)
+- Keep low-confidence signals in separate section for research
+- No labels are "removed", just filtered for output
+
+**Principle 3: Progressive Disclosure**
+- Don't expose labels before they're ready
+- Phase 1: Drops only (current capability)
+- Phase 2: Add sections when accurate enough
+- Phase 3: Full timeline annotation when mature
+
+**Principle 4: Minimal Annotation Format**
+- Make ground truth easy and unambiguous to specify
+- Use human-readable ranges: `intro: 1-24`
+- Support both explicit and implicit drop notation
+- No confidence scores in annotation (implicitly 1.0)
+
+**Principle 5: Merge Consecutive Identical Sections**
+- Pure signal processing, no semantic change
+- `[1,16,other]` + `[16,24,other]` → `[1,24,other]`
+- Reduces noise without losing information
+
+### Proposed Formats
+
+#### Output Format v2: `track_detected.yaml`
+
+Purpose: Show what the detector found, with confidence for review
+
+```yaml
+# Track metadata
+file: /home/user/music/track.flac
+duration: 242.2
+bpm: 128.0
+downbeat: 0.02
+time_signature: 4/4
+
+# High-confidence detections (confidence >= 0.7)
+detected_structure:
+  # Spans with clear boundaries
+  sections:
+    - start: 1
+      end: 24
+      label: intro
+      confidence: 0.9
+      bars: 24
+
+  # Event markers (drops, moments of interest)
+  events:
+    - bar: 24
+      label: drop
+      confidence: 0.9
+
+    - bar: 105
+      label: drop
+      confidence: 0.8
+
+# Medium-confidence detections (0.5 <= confidence < 0.7, optional research section)
+detected_structure_experimental:
+  # For investigation, not for production use
+  sections:
+    - start: 81
+      end: 92
+      label: breakdown
+      confidence: 0.6
+
+  events:
+    - bar: 88
+      label: drop
+      confidence: 0.6
+```
+
+**Benefits:**
+- Clear distinction: high-confidence (production) vs experimental (research)
+- Confidence visible for decision-making
+- Structured format (no polymorphism)
+- Easy to diff against annotations
+- Researchers can investigate low-confidence signals
+
+#### Annotation Format v2: `track_annotated.yaml`
+
+Purpose: Ground truth for training/evaluation, easy to edit by hand
+
+Two equivalent notations for flexibility:
+
+**Option A: List-of-objects (recommended for multiple sections of same type)**
+```yaml
+file: track.flac
+bpm: 128.0
+
+# Explicit ordered list, handles duplicates naturally
+structure:
+  - label: intro
+    bars: 1-24
+
+  - label: verse
+    bars: 25-80
+
+  - label: breakdown
+    bars: 81-92
+
+  - label: buildup
+    bars: 93-104
+
+  - label: verse        # second verse - no key conflict!
+    bars: 105-126
+
+  - label: outro
+    bars: 127-130
+
+drops:
+  - 24
+  - 105
+```
+
+**Option B: Labeled sections (simpler for single instances)**
+```yaml
+file: track.flac
+bpm: 128.0
+
+structure:
+  intro: 1-24
+  verse: 25-80
+  breakdown: 81-92
+  buildup: 93-104
+  outro: 127-130
+
+drops:
+  - 24
+  - 105
+```
+
+**Key Difference:**
+- **Option A** handles multiple verses/breakdowns/etc naturally
+- **Option B** works only when each label appears once
+
+**Recommendation**: Use Option A as canonical format (supports all cases). Tools accept both for convenience.
+
+**Example with multiple verses/buildups:**
+```yaml
+structure:
+  - label: intro
+    bars: 1-24
+
+  - label: verse
+    bars: 25-80
+
+  - label: breakdown
+    bars: 81-92
+
+  - label: buildup
+    bars: 93-104
+
+  - label: verse
+    bars: 105-126
+
+  - label: breakdown
+    bars: 127-140
+
+  - label: buildup
+    bars: 141-150
+
+  - label: outro
+    bars: 151-156
+```
+
+**Benefits:**
+- Extremely readable and easy to edit
+- No metadata noise
+- Supports both explicit and implicit drops
+- Can annotate just drops if full structure is unknown
+- Range format matches DJ software conventions
+- **Handles multiple instances of same label naturally**
+
+#### Conversion Rules
+
+**Detected → Annotation**
+```python
+def convert_detected_to_annotation(detected_dict):
+    """Convert detector output to annotation template."""
+
+    annotation = {
+        "file": detected_dict["file"],
+        "bpm": detected_dict["bpm"],
+        "structure": {},
+        "drops": []
+    }
+
+    # Convert sections to range format
+    for section in detected_dict["detected_structure"]["sections"]:
+        key = section["label"]
+        start = section["start"]
+        end = section["end"]
+
+        if key not in annotation["structure"]:
+            annotation["structure"][key] = []
+        annotation["structure"][key].append(f"{start}-{end}")
+
+    # Extract drop events
+    for event in detected_dict["detected_structure"]["events"]:
+        if event["label"] == "drop":
+            annotation["drops"].append(event["bar"])
+
+    return annotation
+```
+
+**Annotation → Detected (for comparison)**
+```python
+def convert_annotation_to_comparable(annotation_dict, bpm):
+    """Convert annotation back to detected format for comparison."""
+
+    result = {
+        "detected_structure": {
+            "sections": [],
+            "events": []
+        }
+    }
+
+    # Convert ranges back to bar format
+    for label, ranges in annotation_dict["structure"].items():
+        for range_str in ranges:
+            start, end = map(int, range_str.split("-"))
+            result["detected_structure"]["sections"].append({
+                "start": start,
+                "end": end,
+                "label": label,
+                "confidence": 1.0  # Ground truth
+            })
+
+    # Add explicit drops with full confidence
+    for bar in annotation_dict.get("drops", []):
+        result["detected_structure"]["events"].append({
+            "bar": bar,
+            "label": "drop",
+            "confidence": 1.0  # Ground truth
+        })
+
+    return result
+```
+
+### Workflow: From Detection to Ground Truth
+
+**Step 1: Analyze Track**
+```bash
+$ edm analyze track.flac --output track_detected.yaml
+```
+Output: Machine detection with confidence visible
+
+**Step 2: Convert to Annotation Template** (optional CLI helper)
+```bash
+$ edm convert track_detected.yaml --to-annotation > track_annotated.yaml
+```
+Output: Human-friendly format, ready to edit
+
+**Step 3: Human Reviews and Edits**
+Open `track_annotated.yaml` in editor:
+```yaml
+structure:
+  intro: 1-24          # ✓ detector got this right
+  verse: 25-80         # ✓ edited from generic "other"
+  breakdown: 81-92     # ✓ detector found this
+  buildup: 93-104      # ~ detector said it was 93-106, corrected
+  verse: 105-126       # new annotation
+  outro: 127-130       # ✓ detector got this right
+
+drops:
+  - 24                 # ✓ correct
+  - 105                # deleted detector's false positive at 88
+```
+
+**Step 4: Compare Changes**
+```bash
+$ edm diff track_detected.yaml track_annotated.yaml
+```
+
+Output:
+```
+SECTIONS DETECTED BUT NOT ANNOTATED:
+  - breakdown (confidence 0.6) at 81-92: NOT USED (annotator marked as breakdown but lower confidence)
+
+SECTIONS ANNOTATED BUT NOT DETECTED:
+  - verse at 105-126: New annotation, detector missed
+
+CONFIDENCE DIFFERENCES:
+  breakdown 81-92: detector confidence 0.6, annotator confidence 1.0
+
+DROPS DETECTED: 24, 88, 105
+DROPS ANNOTATED: 24, 105
+  Missing from annotation: 88 (confidence 0.6, false positive)
+```
+
+**Step 5: Evaluate**
+```bash
+$ edm evaluate structure --reference track_annotated.yaml
+```
+
+### Label Maturity Levels
+
+Control what's exposed in output based on detection confidence:
+
+**Phase 1: Drops Only** (current, high confidence)
+```python
+# Filter output
+output_config = {
+    "include_labels": {"drop", "intro", "outro"},
+    "exclude_labels": {"other", "breakdown", "buildup", "verse"},
+    "min_confidence": 0.7,
+}
+```
+
+Output only drops + boundary sections (intro/outro).
+
+**Phase 2: Add Section Transitions** (when breakdown/buildup accuracy improves)
+```python
+output_config = {
+    "include_labels": {"drop", "intro", "outro", "breakdown", "buildup"},
+    "exclude_labels": {"other", "verse"},
+    "min_confidence": 0.7,
+}
+```
+
+**Phase 3: Full Structure** (when all labels production-ready)
+```python
+output_config = {
+    "include_labels": None,  # All labels
+    "exclude_labels": {"other"},  # Only exclude truly unknown
+    "min_confidence": 0.7,
+}
+```
+
+**Research/Debug Mode** (when investigating)
+```python
+output_config = {
+    "include_labels": None,
+    "exclude_labels": set(),  # Show everything
+    "min_confidence": 0.0,    # Include experimental
+}
+```
+
+### Implementation Approach
+
+#### Option A: Parallel Formats (Non-Breaking, Recommended)
+
+Keep existing format for backward compatibility, add new formats alongside:
+
+```
+track_detected.yaml      ← Current format (existing)
+track_detected_v2.yaml   ← New format with confidence + sections
+track_annotated.yaml     ← Human-friendly annotation format
+```
+
+Existing tools continue working. New tools use better formats.
+
+**Benefits:**
+- Zero breaking changes
+- Existing workflows unaffected
+- Can migrate gradually
+- Compare old vs new formats side-by-side
+
+**Tradeoffs:**
+- More formats to maintain
+- Potential for confusion
+
+#### Option B: Format Migration (Breaking, Cleaner)
+
+Migrate to new formats as default, deprecate old:
+
+```
+track_detected.yaml      ← New unified format (section + events)
+track_annotated.yaml     ← New human-friendly format
+[old format deprecated]
+```
+
+**Benefits:**
+- Single, clear format
+- Cleaner codebase
+- Better for new users
+- Forces migration of old tooling
+
+**Tradeoffs:**
+- Breaking change
+- Existing scripts need updates
+
+**Recommendation**: Start with Option A (parallel), migrate to Option B after 2-3 releases.
+
+### Merging Consecutive Identical Sections
+
+Pure signal processing to reduce noise:
+
+```python
+def merge_consecutive_sections(sections):
+    """Merge adjacent sections with identical labels."""
+    if not sections:
+        return sections
+
+    merged = [sections[0]]
+    for section in sections[1:]:
+        if section.label == merged[-1].label:
+            # Same label: extend previous section's end
+            merged[-1].end = section.end
+        else:
+            # Different label: add as new section
+            merged.append(section)
+
+    return merged
+```
+
+**Before:**
+```yaml
+- [1, 16, other]
+- [16, 24, other]
+- [24, 32, other]
+- [32, 40, drop]
+```
+
+**After:**
+```yaml
+- [1, 32, other]
+- [32, 40, drop]
+```
+
+No information loss, just cleaner representation.
+
+### Handling Zero-Duration Sections
+
+Current bug: `[1, 1, intro]` means zero duration.
+
+**Solutions:**
+1. **Strict validation**: Reject start == end
+2. **Interpretation change**: `[1, 1, intro]` means "instant moment at bar 1"
+3. **Use events for moments**: Save as drop-like event, not span
+
+**Recommendation**: Validate + treat `[N, N]` as `[N, N+1]` (minimum 1 bar).
+
+### Supporting Implicit and Explicit Drops
+
+Enable future migration from explicit to implicit:
+
+**Current (Explicit):**
+```yaml
+drops:
+  - 24
+  - 105
+```
+
+**Future (Implicit from Sections):**
+```yaml
+structure:
+  intro: 1-24
+  # Drop implied at transition to verse
+  verse: 25-80
+```
+
+**Parser:**
+```python
+def extract_drops(structure, explicit_drops=None):
+    drops = set(explicit_drops or [])
+
+    # Infer from transitions
+    for i in range(len(structure) - 1):
+        curr = structure[i]
+        next_section = structure[i + 1]
+
+        # Buildup → verse/chorus implies drop
+        if curr.label == "buildup" and next_section.label in ["verse", "chorus"]:
+            drops.add(next_section.start)
+
+    return sorted(drops)
+```
+
+Works with both explicit and implicit, doesn't break when structure detection improves.
+
+## Success Criteria
+
+1. ✅ Output is clean (no "other" noise by default)
+2. ✅ Annotations are easy to edit (human-readable format)
+3. ✅ Confidence is visible when debugging (research section optional)
+4. ✅ Workflow supports iteration (detect → annotate → diff → evaluate)
+5. ✅ Future-proof (can add labels without breaking format)
+6. ✅ No information loss (low-confidence signals available for research)
+7. ✅ Easy comparison (detected vs annotated diffs are readable)
+
+## Related Proposals
+
+This proposal complements [SCHEMA] by:
+- **[SCHEMA]**: Ensures output completeness (has required fields)
+- **[STRUCT]**: Ensures output cleanliness (right information, right labels, right format)
+
+Together they address:
+- ✅ What fields must be present (SCHEMA)
+- ✅ What labels should be exposed (STRUCT)
+- ✅ How to format for human use (STRUCT)
+- ✅ How to compare detected vs ground truth (STRUCT)
+
+## References
+
+- [JAMS Music Specification](https://github.com/marl/jams) - Standard music annotation format with namespace separation
+- [MIREX 2025 Music Structure Analysis](https://www.music-ir.org/mirex/wiki/2025:Music_Structure_Analysis) - Current best practices require functional labels (intro, verse, chorus, bridge, inst, outro, other)
+- [EDM Song Structure](https://edmtips.com/edm-song-structure/) - Practical guide to drop, buildup, breakdown patterns
+- [Music Structure Analysis](https://www.music-ir.org/mirex/abstracts/2024/mirex2024_paper_143.pdf) - Research on structure evaluation
+
+## Open Questions for User Input
+
+1. **Format choice**: Option A (parallel formats) vs Option B (migration)?
+2. **Confidence thresholds**: Default 0.7, or different per label?
+3. **Phase 1 labels**: Just drops, or include intro/outro?
+4. **Implicit drops**: Support from day 1, or after section detection improves?
+5. **Research section**: Always include experimental detections, or only on request?
+6. **CLI helpers**: Want `edm convert`, `edm diff` commands, or just format docs?
+

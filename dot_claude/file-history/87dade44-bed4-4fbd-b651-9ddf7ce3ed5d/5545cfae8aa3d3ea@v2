@@ -1,0 +1,205 @@
+# Output Format Specification
+
+## File Format
+
+YAML format (`track_detected_v2.yaml` or `track_detected.yaml` in migration)
+
+## Required Fields
+
+### Top-Level Metadata
+
+```yaml
+file: string                    # Path to analyzed audio file
+duration: float                 # Track duration in seconds
+bpm: float | null              # Detected BPM (null if not analyzed)
+downbeat: float | null         # Time of first downbeat (null if not analyzed)
+time_signature: string | null   # Time signature (e.g., "4/4", null if not analyzed)
+```
+
+### Detection Results
+
+```yaml
+detected_structure:
+  sections: list[Section]      # High-confidence sections (confidence >= 0.7)
+  events: list[Event]          # High-confidence events (confidence >= 0.7)
+
+detected_structure_experimental: (optional)
+  sections: list[Section]      # Medium-confidence sections (0.5 <= confidence < 0.7)
+  events: list[Event]          # Medium-confidence events (0.5 <= confidence < 0.7)
+```
+
+## Data Structures
+
+### Section
+
+```yaml
+start: int                      # Bar number (1-indexed)
+end: int                        # Bar number (1-indexed), inclusive
+label: string                   # Section label (intro, verse, breakdown, buildup, outro, other, etc.)
+confidence: float               # Confidence score 0.0-1.0
+bars: int                       # Duration in bars (end - start + 1)
+```
+
+**Constraints:**
+- `start >= 1`
+- `end >= start` (must be at least `start`)
+- `0.0 <= confidence <= 1.0`
+- `bars = end - start + 1`
+
+### Event
+
+```yaml
+bar: int                        # Bar number (1-indexed)
+label: string                   # Event label (drop, silence, other, etc.)
+confidence: float               # Confidence score 0.0-1.0
+```
+
+**Constraints:**
+- `bar >= 1`
+- `0.0 <= confidence <= 1.0`
+
+## Label Definitions
+
+### Functional Labels (MIREX-compliant)
+
+- **intro**: Opening section before primary content (0-20% of track typically)
+- **verse**: Main lyrical/melodic section with variation
+- **chorus**: Recurring hook or refrain
+- **bridge**: Transitional section between major parts
+- **breakdown**: Simplified/stripped section for tension/contrast
+- **buildup**: Rising energy section leading to climax
+- **drop**: Moment where energy peaks (primary drop point in EDM)
+- **silence**: Quiet/minimal section
+- **outro**: Closing section after primary content
+
+### Reserved Labels
+
+- **other**: Unknown or unlabeled section (should be minimized in high-confidence output)
+
+## Output Filtering Rules
+
+High-confidence output includes sections/events where `confidence >= min_confidence_threshold` (default: 0.7).
+
+### Phase 1: Drops Only
+```
+include_labels: {drop, intro, outro}
+exclude_labels: {other, breakdown, buildup, verse, chorus, bridge}
+min_confidence: 0.7
+```
+
+### Phase 2: Add Section Transitions
+```
+include_labels: {drop, intro, outro, breakdown, buildup}
+exclude_labels: {other, verse, chorus, bridge}
+min_confidence: 0.7
+```
+
+### Phase 3: Full Structure
+```
+include_labels: all
+exclude_labels: {other}
+min_confidence: 0.7
+```
+
+## Consecutive Section Merging
+
+Adjacent sections with identical labels should be merged before output:
+
+**Before:**
+```yaml
+sections:
+  - {start: 1, end: 16, label: other, confidence: 0.75}
+  - {start: 16, end: 24, label: other, confidence: 0.73}
+  - {start: 24, end: 32, label: intro, confidence: 0.85}
+```
+
+**After:**
+```yaml
+sections:
+  - {start: 1, end: 24, label: other, confidence: 0.74}  # merged, avg confidence
+  - {start: 24, end: 32, label: intro, confidence: 0.85}
+```
+
+When merging, use average confidence of merged sections.
+
+## Example Output
+
+```yaml
+file: /home/user/music/track.flac
+duration: 242.2
+bpm: 128.0
+downbeat: 0.02
+time_signature: 4/4
+
+detected_structure:
+  sections:
+    - start: 1
+      end: 24
+      label: intro
+      confidence: 0.92
+      bars: 24
+
+    - start: 25
+      end: 80
+      label: verse
+      confidence: 0.88
+      bars: 56
+
+    - start: 81
+      end: 92
+      label: breakdown
+      confidence: 0.71
+      bars: 12
+
+    - start: 93
+      end: 104
+      label: buildup
+      confidence: 0.78
+      bars: 12
+
+    - start: 105
+      end: 130
+      label: verse
+      confidence: 0.85
+      bars: 26
+
+    - start: 131
+      end: 138
+      label: outro
+      confidence: 0.89
+      bars: 8
+
+  events:
+    - bar: 24
+      label: drop
+      confidence: 0.94
+
+    - bar: 105
+      label: drop
+      confidence: 0.87
+
+detected_structure_experimental:
+  sections:
+    - start: 81
+      end: 92
+      label: breakdown
+      confidence: 0.65
+      bars: 12
+
+  events:
+    - bar: 88
+      label: drop
+      confidence: 0.58
+```
+
+## Validation Rules
+
+1. All bars in `detected_structure.sections` must be covered (no gaps allowed)
+2. Sections must not overlap
+3. Events can occur anywhere (bar 1 to max section end)
+4. Both sections and events must have `0.0 <= confidence <= 1.0`
+5. Experimental sections/events are optional but, if present, must have `0.5 <= confidence < 0.7`
+
+## Version History
+
+- **v2.0**: Initial design with confidence levels and experimental sections (this spec)

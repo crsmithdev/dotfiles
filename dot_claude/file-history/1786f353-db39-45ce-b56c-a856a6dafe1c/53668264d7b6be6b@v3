@@ -1,0 +1,24 @@
+---
+description: Deep reasoning with Opus plan mode
+model: opus
+---
+
+If no arguments provided below, respond: "This command needs a challenge or question. Try `/? your question here`"
+
+Otherwise, engage deep abstract reasoning on the challenge:
+
+1. **Ideate** - Explore unconventional approaches
+2. **Abstract** - Identify patterns, principles, systems
+3. **Broaden** - Draw cross-domain insights
+4. **Validate** - Map failure modes and edge cases
+5. **Synthesize** - Combine into principled solutions
+
+Enter plan mode for thorough exploration without making changes.
+
+**Challenge:** $ARGUMENTS
+
+<!--
+TEST CASES:
+- `/?` (no args) → asks user to provide a challenge
+- `/? how should I structure my config system` → enters plan mode, deep reasoning on the question
+-->
