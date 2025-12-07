@@ -23,14 +23,15 @@ filesize() {
 audit_session() {
   local transcript="${1:-${TRANSCRIPT}}"
 
+  echo "## Session Analysis"
+  echo
+
   if [ -z "$transcript" ] || [ ! -f "$transcript" ]; then
     echo "⚠️  No transcript found (session audit skipped)"
     echo
     return 0
   fi
 
-  echo "# Session Audit"
-  echo
   echo "**Transcript:** $(basename "$transcript")"
   echo "**Lines:** $(wc -l < "$transcript")"
   echo
@@ -560,24 +561,17 @@ case "$TARGET" in
     echo "# Claude Code Meta Audit"
     echo
 
-    # Configuration audit
     audit_memory
     audit_contexts
     audit_commands
     audit_hooks
     audit_settings
     audit_tokens
-
-    echo "---"
-    echo
-
-    # Session audit
     audit_session "$TRANSCRIPT"
 
     echo "---"
     echo
     echo "Run \`/meta <target>\` for detailed analysis:"
-    echo "- session: Current session compliance audit"
-    echo "- memory, contexts, commands, hooks, settings, tokens: Configuration sections"
+    echo "- memory, contexts, commands, hooks, settings, tokens, session"
     ;;
 esac
