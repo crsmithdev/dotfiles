@@ -1,19 +1,19 @@
 ---
-description: Audit and test Claude Code configuration
+description: Audit Claude Code configuration and session
 model: haiku
-allowed-tools: Bash, Read, Glob, Grep
+allowed-tools: Bash
 arguments:
   - name: target
-    description: Optional audit target (contexts|memory|commands|hooks|settings|tokens|session)
+    description: Optional section (memory|contexts|commands|hooks|settings|tokens|session)
 ---
 
-Comprehensive audit of Claude Code configuration and session compliance.
+Audit Claude Code configuration and current session compliance.
 
 ```bash
 ~/.claude/scripts/meta.sh "$ARGUMENTS"
 ```
 
-Analyze the output and provide:
+Output sections: memory, contexts, commands, hooks, settings, tokens, session
 
 ## Analysis Framework
 
