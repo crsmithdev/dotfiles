@@ -1,10 +1,32 @@
-# dot_claude is managed via symlink, not chezmoi file copying
-dot_claude
-dot_claude/**
-
-# The target .claude is a symlink - chezmoi shouldn't touch it
-.claude
-.claude/**
+# Exclude dangerous/runtime files from .claude directory
+.claude/.credentials.json
+.claude/history.jsonl
+.claude/session-env
+.claude/session-env/**
+.claude/shell-snapshots
+.claude/shell-snapshots/**
+.claude/file-history
+.claude/file-history/**
+.claude/projects
+.claude/projects/**
+.claude/todos
+.claude/todos/**
+.claude/plans
+.claude/plans/**
+.claude/debug
+.claude/debug/**
+.claude/statsig
+.claude/statsig/**
+.claude/telemetry
+.claude/telemetry/**
+.claude/downloads
+.claude/downloads/**
+.claude/stats-cache.json
+.claude/settings.local.json
+.claude/ide
+.claude/ide/**
+.claude/plugins
+.claude/plugins/**
 
 # Standard ignores
 README.md

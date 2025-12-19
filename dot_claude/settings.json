@@ -19,12 +19,39 @@
       "KillShell",
       "AskUserQuestion",
       "Skill",
-      "SlashCommand"
+      "SlashCommand",
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)",
+      "Bash(pgrep:*)",
+      "Bash(cat:*)",
+      "Bash(killall ngrok:*)",
+      "Bash(killall node:*)",
+      "Bash(node scripts/ngrok-tunnels.js:*)",
+      "Bash(lsof:*)",
+      "Bash(source .env)",
+      "Bash(/home/crsmi/caller/node_modules/ngrok/bin/ngrok:*)",
+      "Bash(echo:*)",
+      "Bash(node:*)",
+      "Bash(~/.config/ngrok/ngrok.yml)",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)",
+      "Bash(docker logs:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:test:*)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "defaultMode": "default"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "SessionStart": [
       {

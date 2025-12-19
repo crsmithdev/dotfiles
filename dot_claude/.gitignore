@@ -1,1 +1,29 @@
+# Credentials and secrets
 .credentials.json
+settings.local.json
+
+# Conversation history and session data
+history.jsonl
+session-env/
+shell-snapshots/
+
+# File history cache
+file-history/
+
+# Project-specific data
+projects/
+todos/
+plans/
+
+# Debug and telemetry
+debug/
+statsig/
+telemetry/
+stats-cache.json
+
+# Downloads and IDE locks
+downloads/
+ide/
+
+# Plugin runtime data
+plugins/
