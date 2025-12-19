@@ -1,0 +1,33 @@
+# ~/.npmrc
+# npm configuration
+
+# Security
+audit=true
+audit-level=moderate
+
+# Performance
+prefer-offline=true
+fetch-retries=3
+fetch-retry-factor=10
+fetch-retry-mintimeout=10000
+fetch-retry-maxtimeout=60000
+
+# Progress
+progress=true
+loglevel=warn
+
+# Save behavior
+save-exact=false
+save-prefix=^
+
+# Engine strict (enforce engines field in package.json)
+engine-strict=false
+
+# Fund messages
+fund=false
+
+# Update notifier
+update-notifier=true
+
+# Legacy peer deps (for compatibility)
+legacy-peer-deps=false

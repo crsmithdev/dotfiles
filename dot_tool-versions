@@ -1,0 +1,22 @@
+# ~/.tool-versions
+# asdf version manager configuration
+# Install asdf: https://asdf-vm.com/
+
+# Node.js
+nodejs 20.10.0
+
+# Python
+python 3.12.0 3.11.5
+
+# Ruby
+# ruby 3.2.2
+
+# Go
+# golang 1.21.5
+
+# Rust is managed by rustup, not asdf
+
+# To add more tools:
+# asdf plugin add <tool>
+# asdf install <tool> <version>
+# asdf global <tool> <version>

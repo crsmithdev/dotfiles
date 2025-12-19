@@ -1,0 +1,253 @@
+# ~/.zshrc - ZSH configuration
+
+# ============================================================================
+# Oh My Zsh Configuration
+# ============================================================================
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme (disabled if using Starship)
+ZSH_THEME="robbyrussell"
+
+# Plugins
+plugins=(
+    git
+    docker
+    docker-compose
+    kubectl
+    terraform
+    rust
+    golang
+    python
+    npm
+    node
+    yarn
+    sudo
+    command-not-found
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    history-substring-search
+    fzf
+)
+
+# Case-sensitive completion
+CASE_SENSITIVE="false"
+HYPHEN_INSENSITIVE="true"
+
+# Auto-update behavior
+zstyle ':omz:update' mode auto
+zstyle ':omz:update' frequency 13
+
+# History
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt SHARE_HISTORY
+
+# Load Oh My Zsh if installed
+[ -d "$ZSH" ] && source $ZSH/oh-my-zsh.sh
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+
+# Development paths
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
+
+# Rust
+export PATH="$HOME/.cargo/bin:$PATH"
+export RUSTUP_HOME="$HOME/.rustup"
+export CARGO_HOME="$HOME/.cargo"
+
+# Go
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Python
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+command -v pyenv >/dev/null && eval "$(pyenv init -)"
+
+# Node.js
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# fnm (Fast Node Manager)
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd)"
+fi
+
+# Editor
+export EDITOR="vim"
+export VISUAL="vim"
+command -v nvim >/dev/null && export EDITOR="nvim" && export VISUAL="nvim"
+
+# Development tools
+export BAT_THEME="Catppuccin-frappe"
+export FZF_DEFAULT_OPTS="--color=fg:#c6d0f5,bg:#303446,hl:#e78284 --color=fg+:#c6d0f5,bg+:#414559,hl+:#e78284 --color=border:#8caaee,header:#e78284,gutter:#303446 --color=spinner:#f2d5cf,info:#ca9ee6,separator:#737994 --color=pointer:#f2d5cf,marker:#f2d5cf,prompt:#8caaee"
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+# WSL-specific
+if [[ -f /proc/version ]] && grep -qi microsoft /proc/version; then
+    export BROWSER="wslview"
+    export DOCKER_HOST="tcp://localhost:2375"
+fi
+
+# ============================================================================
+# Aliases
+# ============================================================================
+
+# Modern replacements
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first'
+    alias la='eza -a --icons --group-directories-first'
+    alias lt='eza -T --icons --group-directories-first'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat --paging=never'
+    alias less='bat'
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+    alias cd='z'
+fi
+
+# Git aliases (supplement Oh My Zsh git plugin)
+alias g='git'
+alias gst='git status'
+alias glog='git log --oneline --graph --decorate'
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+
+# Utilities
+alias mkdir='mkdir -pv'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+
+# Quick edits
+alias zshrc='$EDITOR ~/.zshrc'
+alias vimrc='$EDITOR ~/.vimrc'
+alias reload='source ~/.zshrc'
+
+# Development shortcuts
+alias py='python3'
+alias ipy='ipython'
+alias jn='jupyter notebook'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+alias tf='terraform'
+alias k='kubectl'
+
+# System info
+alias ports='netstat -tulanp'
+alias psg='ps aux | grep -v grep | grep -i -e VSZ -e'
+alias myip='curl -s ifconfig.me'
+
+# ============================================================================
+# Functions
+# ============================================================================
+
+# Create and enter directory
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extract archives
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Find files by name
+ff() {
+    find . -type f -iname "*$1*"
+}
+
+# Find in files
+fif() {
+    grep -rnw '.' -e "$1"
+}
+
+# Git commit with conventional commits
+gcm() {
+    git commit -m "$*"
+}
+
+# Quick server
+serve() {
+    local port="${1:-8000}"
+    python3 -m http.server "$port"
+}
+
+# ============================================================================
+# Starship Prompt (if installed, overrides Oh My Zsh theme)
+# ============================================================================
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
+# ============================================================================
+# ZSH-specific Options
+# ============================================================================
+setopt AUTO_CD              # cd by typing directory name
+setopt AUTO_PUSHD           # Push old directory onto stack
+setopt PUSHD_IGNORE_DUPS    # Don't push duplicate directories
+setopt PUSHD_MINUS          # Exchange meaning of + and -
+setopt CORRECT              # Spelling correction
+setopt EXTENDED_GLOB        # Extended globbing
+setopt NO_CASE_GLOB         # Case insensitive globbing
+
+# ============================================================================
+# Key Bindings
+# ============================================================================
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey '^[OA' history-substring-search-up
+bindkey '^[OB' history-substring-search-down
+
+# ============================================================================
+# Completion
+# ============================================================================
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# ============================================================================
+# Local Overrides
+# ============================================================================
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

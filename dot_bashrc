@@ -1,0 +1,215 @@
+# ~/.bashrc - Bash configuration
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# ============================================================================
+# History Configuration
+# ============================================================================
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend
+PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+
+# ============================================================================
+# Shell Options
+# ============================================================================
+shopt -s checkwinsize  # Update LINES and COLUMNS after each command
+shopt -s globstar      # Enable ** recursive glob
+shopt -s cdspell       # Autocorrect typos in path names
+shopt -s dirspell      # Autocorrect directory names
+shopt -s nocaseglob    # Case-insensitive globbing
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+
+# Development paths
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
+
+# Rust
+export PATH="$HOME/.cargo/bin:$PATH"
+export RUSTUP_HOME="$HOME/.rustup"
+export CARGO_HOME="$HOME/.cargo"
+
+# Go
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Python
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+command -v pyenv >/dev/null && eval "$(pyenv init -)"
+
+# Node.js
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# fnm (Fast Node Manager) - alternative to nvm
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd)"
+fi
+
+# Editor
+export EDITOR="vim"
+export VISUAL="vim"
+command -v nvim >/dev/null && export EDITOR="nvim" && export VISUAL="nvim"
+
+# Development tools
+export BAT_THEME="Catppuccin-frappe"
+export FZF_DEFAULT_OPTS="--color=fg:#c6d0f5,bg:#303446,hl:#e78284 --color=fg+:#c6d0f5,bg+:#414559,hl+:#e78284 --color=border:#8caaee,header:#e78284,gutter:#303446 --color=spinner:#f2d5cf,info:#ca9ee6,separator:#737994 --color=pointer:#f2d5cf,marker:#f2d5cf,prompt:#8caaee"
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+# WSL-specific
+if grep -qi microsoft /proc/version 2>/dev/null; then
+    export BROWSER="wslview"
+    # Docker Desktop integration
+    export DOCKER_HOST="tcp://localhost:2375"
+fi
+
+# ============================================================================
+# Aliases
+# ============================================================================
+
+# Modern replacements
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first'
+    alias la='eza -a --icons --group-directories-first'
+    alias lt='eza -T --icons --group-directories-first'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -lah'
+    alias la='ls -A'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat --paging=never'
+    alias less='bat'
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init bash)"
+    alias cd='z'
+fi
+
+# Git aliases (fallback if .gitconfig not available)
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gd='git diff'
+alias gco='git checkout'
+alias gb='git branch'
+alias glog='git log --oneline --graph --decorate'
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+
+# Utilities
+alias mkdir='mkdir -pv'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Quick edits
+alias bashrc='$EDITOR ~/.bashrc'
+alias vimrc='$EDITOR ~/.vimrc'
+alias reload='source ~/.bashrc'
+
+# Development shortcuts
+alias py='python3'
+alias ipy='ipython'
+alias jn='jupyter notebook'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+alias tf='terraform'
+alias k='kubectl'
+
+# System info
+alias ports='netstat -tulanp'
+alias psg='ps aux | grep -v grep | grep -i -e VSZ -e'
+alias myip='curl -s ifconfig.me'
+alias speed='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
+
+# ============================================================================
+# Functions
+# ============================================================================
+
+# Create and enter directory
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extract archives
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Find files by name
+ff() {
+    find . -type f -iname "*$1*"
+}
+
+# Find in files
+fif() {
+    grep -rnw '.' -e "$1"
+}
+
+# Git commit with conventional commits
+gcm() {
+    git commit -m "$*"
+}
+
+# Quick server
+serve() {
+    local port="${1:-8000}"
+    python3 -m http.server "$port"
+}
+
+# ============================================================================
+# Starship Prompt (if installed)
+# ============================================================================
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+else
+    # Fallback prompt
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+fi
+
+# ============================================================================
+# Local Overrides
+# ============================================================================
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local

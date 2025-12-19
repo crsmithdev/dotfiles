@@ -1,0 +1,254 @@
+# ~/.gitconfig - Git configuration
+{{- /* This is a chezmoi template */ -}}
+
+[user]
+    name = {{ .username }}
+    email = {{ .email }}
+    # Uncomment to sign commits with GPG
+    # signingkey = YOUR_GPG_KEY_ID
+
+[core]
+    editor = vim
+    pager = less -FRX
+    autocrlf = input
+    excludesfile = ~/.gitignore_global
+    # Use delta for better diffs (if installed)
+    # pager = delta
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+
+[fetch]
+    prune = true
+    pruneTagss = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+
+[merge]
+    conflictstyle = diff3
+    tool = vimdiff
+
+[diff]
+    colorMoved = zebra
+    algorithm = histogram
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = green
+    changed = yellow
+    untracked = red
+
+# ============================================================================
+# Aliases
+# ============================================================================
+
+[alias]
+    # Status & Info
+    s = status --short --branch
+    st = status
+    info = remote show origin
+
+    # Add
+    a = add
+    aa = add --all
+    ap = add --patch
+
+    # Commit
+    c = commit
+    cm = commit -m
+    ca = commit --amend
+    can = commit --amend --no-edit
+
+    # Checkout & Branch
+    co = checkout
+    cob = checkout -b
+    b = branch
+    ba = branch -a
+    bd = branch -d
+    bD = branch -D
+
+    # Diff
+    d = diff
+    ds = diff --staged
+    dc = diff --cached
+
+    # Log
+    l = log --oneline --graph --decorate
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    ll = log --stat --abbrev-commit
+    lp = log --patch
+    recent = log --oneline --graph --decorate -n 10
+
+    # Push & Pull
+    p = push
+    pf = push --force-with-lease
+    pl = pull
+    plo = pull origin
+
+    # Remote
+    r = remote
+    rv = remote -v
+
+    # Stash
+    ss = stash save
+    sl = stash list
+    sp = stash pop
+    sa = stash apply
+    sd = stash drop
+
+    # Reset & Revert
+    unstage = reset HEAD --
+    undo = reset --soft HEAD^
+    discard = checkout --
+
+    # Useful shortcuts
+    last = log -1 HEAD --stat
+    sync = !git pull --rebase && git push
+    branches = branch -a
+    tags = tag -l
+    remotes = remote -v
+    contributors = shortlog --summary --numbered
+
+    # Find commits by message
+    fm = "!git log --all --grep="
+
+    # Find commits by code change
+    fc = "!git log --all -S"
+
+    # List aliases
+    aliases = config --get-regexp alias
+
+    # Cleanup merged branches
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
+
+    # Current branch name
+    current-branch = rev-parse --abbrev-ref HEAD
+
+    # Worktree shortcuts
+    wt = worktree
+    wta = worktree add
+    wtl = worktree list
+    wtr = worktree remove
+
+# ============================================================================
+# Delta Configuration (if installed)
+# ============================================================================
+
+[delta]
+    navigate = true
+    light = false
+    side-by-side = false
+    line-numbers = true
+    syntax-theme = Catppuccin-frappe
+
+[interactive]
+    diffFilter = delta --color-only
+
+# ============================================================================
+# WSL-Specific Settings
+# ============================================================================
+{{- if (eq .chezmoi.os "linux") }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+
+[credential]
+    helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
+
+[core]
+    # Fix line ending issues in WSL
+    autocrlf = input
+    filemode = false
+
+{{- end }}
+{{- end }}
+
+# ============================================================================
+# Platform-Specific Settings
+# ============================================================================
+
+{{- if (eq .chezmoi.os "darwin") }}
+[credential]
+    helper = osxkeychain
+{{- end }}
+
+{{- if (eq .chezmoi.os "linux") }}
+[credential]
+    helper = cache --timeout=3600
+{{- end }}
+
+# ============================================================================
+# URL Shortcuts
+# ============================================================================
+
+[url "git@github.com:"]
+    insteadOf = gh:
+    insteadOf = https://github.com/
+
+[url "git@gitlab.com:"]
+    insteadOf = gl:
+    insteadOf = https://gitlab.com/
+
+# ============================================================================
+# Security
+# ============================================================================
+
+[transfer]
+    fsckobjects = true
+
+[fetch]
+    fsckobjects = true
+
+[receive]
+    fsckObjects = true
+
+# ============================================================================
+# Performance
+# ============================================================================
+
+[pack]
+    threads = 0
+
+[gc]
+    auto = 256
+
+# ============================================================================
+# GPG Signing (uncomment to enable)
+# ============================================================================
+
+# [commit]
+#     gpgsign = true
+#
+# [tag]
+#     gpgsign = true
+
+# ============================================================================
+# Local Overrides
+# ============================================================================
+
+[include]
+    path = ~/.gitconfig.local

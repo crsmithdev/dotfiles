@@ -1,0 +1,80 @@
+# ~/.cargo/config.toml
+# Cargo configuration
+
+[build]
+# Number of parallel jobs, defaults to # of CPUs
+jobs = 0
+
+# Incremental compilation
+incremental = true
+
+[term]
+# Enable colored output
+color = "auto"
+verbose = false
+quiet = false
+
+[cargo-new]
+# Default author information for new projects
+name = "Your Name"
+email = "your.email@example.com"
+vcs = "git"
+
+[target.x86_64-unknown-linux-gnu]
+# Use lld linker for faster builds on Linux
+# Uncomment if lld is installed (sudo apt install lld)
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-apple-darwin]
+# Use zld linker for faster builds on macOS
+# Uncomment if zld is installed (brew install michaeleisel/zld/zld)
+# rustflags = ["-C", "link-arg=-fuse-ld=/usr/local/bin/zld"]
+
+[target.x86_64-pc-windows-msvc]
+# Use lld-link for faster builds on Windows
+# rustflags = ["-C", "link-arg=-fuse-ld=lld-link"]
+
+# Alias for common commands
+[alias]
+b = "build"
+c = "check"
+t = "test"
+r = "run"
+rr = "run --release"
+br = "build --release"
+wr = "watch -x run"
+wt = "watch -x test"
+
+# Profile settings
+[profile.dev]
+# Faster compile times for development
+opt-level = 0
+debug = true
+split-debuginfo = "unpacked"
+
+[profile.release]
+# Optimize for speed
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+# Profile for distributing binaries (max optimization)
+[profile.dist]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+# Network settings
+[net]
+# Retry downloads
+retry = 3
+
+# Git fetch settings
+git-fetch-with-cli = true
+
+# Registry configuration
+[registries.crates-io]
+protocol = "sparse"

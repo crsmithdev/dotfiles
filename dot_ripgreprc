@@ -1,0 +1,30 @@
+# ~/.ripgreprc
+# ripgrep configuration
+
+# Search hidden files but not .git
+--hidden
+--glob=!.git/*
+
+# Follow symbolic links
+--follow
+
+# Smart case (case insensitive if all lowercase)
+--smart-case
+
+# Show line numbers
+--line-number
+
+# Use colors
+--colors=line:fg:yellow
+--colors=line:style:bold
+--colors=path:fg:green
+--colors=path:style:bold
+--colors=match:fg:black
+--colors=match:bg:yellow
+--colors=match:style:nobold
+
+# Max columns to display
+--max-columns=150
+
+# Context lines
+--context=2
